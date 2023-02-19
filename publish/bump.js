@@ -11,7 +11,7 @@ const args = process.argv.slice(2);
 const isRelease = args.includes('release');
 const isAlpha = args.includes('alpha');
 const isBeta = args.includes('beta');
-const isRc = args.includes('rc');
+const isDev = args.includes('dev');
 
 const packageJsonPath = path.resolve(process.cwd(), './package.json');
 
@@ -23,7 +23,7 @@ const packageJsonContent = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 // determine the type of bump
 const releaseType = isRelease ? 'patch' : 'prerelease';
-const publishType = isAlpha ? 'alpha' : isBeta ? 'beta' : null;
+const publishType = isAlpha ? 'alpha' : isBeta ? 'beta' : isDev ? "dev" : null;
 
 let currentVersion;
 try { currentVersion = fs.readFileSync(path.resolve(process.cwd(), `./publish/version.txt`), "utf-8"); } catch { currentVersion = "0.0.0"; }
@@ -36,7 +36,7 @@ const newVersion = semver.inc(currentVersion, releaseType, publishType);
 fs.writeFileSync(path.resolve(process.cwd(), `./publish/version.txt`), newVersion.split('-')[0]);
 if (newVersion.split('-')[1]) fs.writeFileSync(path.resolve(process.cwd(), `./publish/${publishType}.txt`), newVersion.split('-')[1]);
 else {
-    ["alpha", "beta", "rc"].forEach(type => {
+    ["alpha", "beta", "rc", "dev"].forEach(type => {
         try {
             fs.unlinkSync(path.resolve(process.cwd(), `./publish/${type}.txt`));
         } catch {}
