@@ -1,6 +1,6 @@
 import { Collection } from "@discordjs/collection";
 import { RolePack, Townies } from "..";
-import { Player } from "./BasePlayer";
+import { Player } from "./Player";
 import { BaseRole } from "./BaseRole";
 
 export class Game<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {

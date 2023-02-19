@@ -1,4 +1,4 @@
-import { Player } from "./BasePlayer";
+import { Player } from "./Player";
 
 export interface BaseRole<TPlayerExtra> {
     name: string;

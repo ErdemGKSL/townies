@@ -34,6 +34,10 @@ export class Townies<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
     }
 };
 
+// export function createTownies<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>>(namespace: string, roles: RolePack<TPlayerExtra, TRoles>, options?: TowniesOptions) {
+//     return new Townies(namespace, roles, options);
+// }
+
 
 const townies = new Townies("townies", [
     { name: "Townie", namespace: "townies", vote: () => null },
