@@ -48,5 +48,3 @@ packageJsonContent.version = newVersion;
 
 // write the package.json file
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJsonContent, null, 2));
-
-
