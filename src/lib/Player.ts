@@ -14,4 +14,9 @@ export class Player<T, TRoles extends BaseRole<T>> {
         this.voted = null;
         this.data = {};
     }
+
+    get voteSize() {
+        return this.game.players.filter(x => x.voted === this.id).size;
+    }
+
 }

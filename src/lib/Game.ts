@@ -50,4 +50,10 @@ export class Game<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
         this.townies.games.delete(this.id);
     }
 
+    clearVotes() {
+        for (const player of this.players.values()) {
+            player.voted = null;
+        }
+    }
+
 }
