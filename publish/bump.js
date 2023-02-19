@@ -31,8 +31,7 @@ try { if (publishType) currentVersion += "-" + fs.readFileSync(path.resolve(proc
 
 // bump the version
 const newVersion = semver.inc(currentVersion, releaseType, publishType);
-console.log(currentVersion, releaseType, publishType)
-console.log(newVersion)
+
 // write the new version to the file
 fs.writeFileSync(path.resolve(process.cwd(), `./publish/version.txt`), newVersion.split('-')[0]);
 if (newVersion.split('-')[1]) fs.writeFileSync(path.resolve(process.cwd(), `./publish/${publishType}.txt`), newVersion.split('-')[1]);
