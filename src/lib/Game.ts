@@ -5,7 +5,7 @@ import { BaseRole } from "./BaseRole";
 
 export class Game<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
 
-    private players: Collection<number | string, Player<TPlayerExtra, TRoles>>;
+    players: Collection<number | string, Player<TPlayerExtra, TRoles>>;
     constructor(public id: number, public townies: Townies<TPlayerExtra, TRoles>, public readonly roles: RolePack<TPlayerExtra, TRoles>) {
         this.players = new Collection();
     }
@@ -37,7 +37,7 @@ export class Game<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
         }
     }
 
-    async shufflePlayers(): this["players"] {
+    shufflePlayers(): this["players"] {
         const players = this.players.map(x => x).sort(() => Math.random() - 0.5);
         this.players.clear();
         for (const player of players) {

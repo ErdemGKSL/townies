@@ -1,7 +1,7 @@
 import { BaseRole } from "./BaseRole";
 import { Game } from "./Game";
 
-export class Player<TRoles extends BaseRole, T> {
+export class Player<T, TRoles extends BaseRole<T>> {
     id: string | number;
     voted: string | number;
     extra: T;

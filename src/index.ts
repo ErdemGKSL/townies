@@ -17,7 +17,7 @@ export class Townies<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
 
     constructor(
         public namespace: string,
-        public readonly roles: RolePack<TRoles>,
+        public readonly roles: RolePack<TPlayerExtra,TRoles>,
         public readonly options: TowniesOptions = {
             maxPlayers: 16,
             minPlayers: 4,

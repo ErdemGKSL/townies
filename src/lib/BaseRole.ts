@@ -13,9 +13,4 @@ export class Role<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
 
     }
 
-
-
-
-
-
 }
