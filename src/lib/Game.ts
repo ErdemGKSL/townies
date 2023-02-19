@@ -56,4 +56,32 @@ export class Game<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
         }
     }
 
+    private getVotes() {
+        const votes: { [key: string]: number } = {};
+        for (const player of this.players.values()) {
+            if (player.voted) {
+                if (!votes[player.voted]) votes[player.voted] = 0;
+                votes[player.voted]++;
+            }
+        }
+        return votes;
+    }
+
+    /**
+     * Returns an object with the following properties:
+     *  - data: An object with the player ID as the key and the number of votes as the value
+     *  - maxVotes: An array of player IDs with the most votes
+     *  - maxVotesCount: The number of votes the player(s) with the most votes have
+     */
+    getVoteDatas(): { data: { [k: string]: number }, maxVotes: string[], maxVotesCount: number } {
+        const votes = this.getVotes();
+        const maxVotesCount = Math.max(...Object.values(votes));
+        const maxVotes = Object.keys(votes).filter(key => votes[key] === maxVotesCount);
+        return {
+            data: votes,
+            maxVotes,
+            maxVotesCount
+        };
+    }
+
 }
