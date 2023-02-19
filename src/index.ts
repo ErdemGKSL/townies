@@ -1,7 +1,7 @@
 import { BaseRole } from "./lib/BaseRole";
 import { Game } from "./lib/Game";
 
-export type RolePack<T extends BaseRole> = readonly T[];
+export type RolePack<TPlayerExtra, T extends BaseRole<TPlayerExtra>> = readonly T[];
 
 interface TowniesOptions {
     maxPlayers: number;
@@ -10,10 +10,11 @@ interface TowniesOptions {
 }
 
 
-export class Townies<TRoles extends BaseRole> {
+export class Townies<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
     lastGameId: number = 0;
-    games: Map<number, Game<TRoles>>;
-    roleNames: TRoles["name"][];
+    games: Map<number, Game<TPlayerExtra, TRoles>>;
+    // roleNames: TRoles["name"][];
+
     constructor(
         public namespace: string,
         public readonly roles: RolePack<TRoles>,
@@ -23,10 +24,11 @@ export class Townies<TRoles extends BaseRole> {
             skippable: true,
         }
     ) { };
-    createGame(roleFilter?: TRoles["namespace"][]): Game<TRoles> {
+
+    createGame(roleFilter?: TRoles["namespace"][]): Game<TPlayerExtra, TRoles> {
         this.lastGameId++;
         const roles = roleFilter ? this.roles.filter(role => roleFilter.includes(role.namespace)) : this.roles;
-        const game = new Game(this.lastGameId, roles);
+        const game: Game<TPlayerExtra, TRoles> = new Game(this.lastGameId, this, roles);
         this.games.set(this.lastGameId, game);
         return game;
     }
