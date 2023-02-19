@@ -6,6 +6,12 @@ import { BaseRole } from "./BaseRole";
 export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
 
     players: Collection<number | string, Player<TPlayerExtra, TRoles, TNamespace>>;
+    onNight?: (game: this) => Promise<void> | void;
+    onDay?: (game: this) => Promise<void> | void;
+
+    turn: number = 0;
+    day: boolean = true;
+
     constructor(public id: number, public townies: Townies<TNamespace, TPlayerExtra, TRoles>, public readonly roles: RolePack<TNamespace, TPlayerExtra, TRoles>) {
         this.players = new Collection();
     }
@@ -82,6 +88,10 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
             maxVotes,
             maxVotesCount
         };
+    }
+
+    get realTurn() {
+        return Math.ceil(this.turn / 2);
     }
 
 }

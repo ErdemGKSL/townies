@@ -6,6 +6,7 @@ export class Player<T, TRoles extends BaseRole<TNamespace, T>, TNamespace extend
     voted: string | number;
     extra: T;
     role: TRoles;
+    alive: boolean = true;
     data: { [key: string]: any };
     constructor(id: string | number, role: TRoles, extra: T, public game: Game<TNamespace, T, TRoles>) {
         this.id = id;
