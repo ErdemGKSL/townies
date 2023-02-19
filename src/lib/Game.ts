@@ -3,10 +3,10 @@ import { RolePack, Townies } from "..";
 import { Player } from "./Player";
 import { BaseRole } from "./BaseRole";
 
-export class Game<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
+export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
 
-    players: Collection<number | string, Player<TPlayerExtra, TRoles>>;
-    constructor(public id: number, public townies: Townies<TPlayerExtra, TRoles>, public readonly roles: RolePack<TPlayerExtra, TRoles>) {
+    players: Collection<number | string, Player<TPlayerExtra, TRoles, TNamespace>>;
+    constructor(public id: number, public townies: Townies<TNamespace, TPlayerExtra, TRoles>, public readonly roles: RolePack<TNamespace, TPlayerExtra, TRoles>) {
         this.players = new Collection();
     }
 

@@ -1,13 +1,13 @@
 import { BaseRole } from "./BaseRole";
 import { Game } from "./Game";
 
-export class Player<T, TRoles extends BaseRole<T>> {
+export class Player<T, TRoles extends BaseRole<TNamespace, T>, TNamespace extends string> {
     id: string | number;
     voted: string | number;
     extra: T;
     role: TRoles;
     data: { [key: string]: any };
-    constructor(id: string | number, role: TRoles, extra: T, public game: Game<T, TRoles>) {
+    constructor(id: string | number, role: TRoles, extra: T, public game: Game<TNamespace, T, TRoles>) {
         this.id = id;
         this.role = role;
         this.extra = extra;

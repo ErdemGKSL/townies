@@ -1,7 +1,7 @@
 import { BaseRole } from "./lib/BaseRole";
 import { Game } from "./lib/Game";
 
-export type RolePack<TPlayerExtra, T extends BaseRole<TPlayerExtra>> = readonly T[];
+export type RolePack<TNamespace extends string,TPlayerExtra, T extends BaseRole<TNamespace, TPlayerExtra>> = readonly T[];
 
 interface TowniesOptions {
     maxPlayers: number;
@@ -10,14 +10,14 @@ interface TowniesOptions {
 }
 
 
-export class Townies<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
+export class Townies<TNamespace extends string, TPlayerExtra, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
     lastGameId: number = 0;
-    games: Map<number, Game<TPlayerExtra, TRoles>>;
+    games: Map<number, Game<TNamespace, TPlayerExtra, TRoles>>;
     // roleNames: TRoles["name"][];
 
     constructor(
-        public namespace: string,
-        public readonly roles: RolePack<TPlayerExtra,TRoles>,
+        public namespace: TNamespace,
+        public readonly roles: RolePack<TNamespace, TPlayerExtra,TRoles>,
         public readonly options: TowniesOptions = {
             maxPlayers: 16,
             minPlayers: 4,
@@ -25,10 +25,10 @@ export class Townies<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>> {
         }
     ) { };
 
-    createGame(roleFilter?: TRoles["namespace"][]): Game<TPlayerExtra, TRoles> {
+    createGame(roleFilter?: TRoles["namespace"][]): Game<TNamespace, TPlayerExtra, TRoles> {
         this.lastGameId++;
         const roles = roleFilter ? this.roles.filter(role => roleFilter.includes(role.namespace)) : this.roles;
-        const game: Game<TPlayerExtra, TRoles> = new Game(this.lastGameId, this, roles);
+        const game: Game<TNamespace, TPlayerExtra, TRoles> = new Game(this.lastGameId, this, roles);
         this.games.set(this.lastGameId, game);
         return game;
     }
