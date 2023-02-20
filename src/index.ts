@@ -49,9 +49,6 @@ export class Townies<TNamespace extends string, TPlayerExtra, TRoles extends Bas
 
 
 const townies = new Townies("townies", [
-    { name: "Townie", namespace: "townies", vote: () => null },
-    { name: "Mafia", namespace: "mafia", kill: () => null },
+    { name: "Townie", namespace: "townies" },
+    { name: "Mafia", namespace: "mafia", team: "mafia" },
 ] as const);
-
-// how can i publish this repo to npm with @alpha tag?
-// 

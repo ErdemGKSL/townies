@@ -7,10 +7,10 @@ import { VoteManager } from "./VoteManager";
 export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
 
   players: Collection<number | string, Player<TPlayerExtra, TRoles, TNamespace>>;
-  private onNight?: (game: this) => Promise<void> | void;
-  private onDay?: (game: this) => Promise<void> | void;
+  private onNightStart?: (game: this) => Promise<void> | void;
+  private onDayStart?: (game: this) => Promise<void> | void;
   private onEnd?: (game: this) => Promise<void> | void;
-
+  private ended: boolean = false;
   votes: VoteManager<TNamespace, TPlayerExtra, TRoles> = new VoteManager(this);
 
   turn: number = 0;
@@ -71,13 +71,14 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   }
 
   async nextTurn() {
+    await this.tryEnd();
     this.turn++;
     if (this.day) {
       this.day = false;
-      if (this.onNight) await this.onNight(this);
+      if (this.onNightStart) await this.onNightStart(this);
     } else {
       this.day = true;
-      if (this.onDay) await this.onDay(this);
+      if (this.onDayStart) await this.onDayStart(this);
     }
     this.votes.clear();
     await this.tryEnd();
@@ -87,10 +88,10 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   on(type: "night" | "day" | "end", callback: (game: this) => Promise<void> | void) {
     switch (type) {
       case "night":
-        this.onNight = callback;
+        this.onNightStart = callback;
         break;
       case "day":
-        this.onDay = callback;
+        this.onDayStart = callback;
         break;
       case "end":
         this.onEnd = callback;
@@ -161,6 +162,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   private async end() {
     if (this.onEnd) await this.onEnd(this);
     this.dispose();
+    this.ended = true;
   }
 
 }
