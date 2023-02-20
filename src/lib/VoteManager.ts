@@ -33,7 +33,7 @@ export class VoteManager<TNamespace extends string, TPlayerExtra, TRoles extends
         };
     }
 
-    reset() {
+    clear() {
         for (const player of this.game.players.values()) {
             player.voted = null;
         }
