@@ -30,7 +30,11 @@ try { currentVersion = fs.readFileSync(path.resolve(process.cwd(), `./publish/ve
 try { if (publishType) currentVersion += "-" + fs.readFileSync(path.resolve(process.cwd(), `./publish/${publishType ?? "release"}.txt`), "utf-8"); } catch { if (publishType) currentVersion += `-${publishType}.0`; }
 
 // bump the version
-const newVersion = semver.inc(currentVersion, releaseType, publishType);
+let newVersion = (packageJsonContent.version.includes("-") && !publishType) ? currentVersion : (
+    semver.inc((publishType ? currentVersion : currentVersion.split("-")[0]), releaseType, publishType ?? "null")
+);
+
+if (newVersion.includes("-null")) newVersion = newVersion.split("-")[0];
 
 // write the new version to the file
 fs.writeFileSync(path.resolve(process.cwd(), `./publish/version.txt`), newVersion.split('-')[0]);

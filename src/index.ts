@@ -52,3 +52,6 @@ const townies = new Townies("townies", [
     { name: "Townie", namespace: "townies", vote: () => null },
     { name: "Mafia", namespace: "mafia", kill: () => null },
 ] as const);
+
+// how can i publish this repo to npm with @alpha tag?
+// 
