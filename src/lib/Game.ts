@@ -1,24 +1,30 @@
 import { Collection } from "@discordjs/collection";
 import { RolePack, Townies } from "..";
 import { Player } from "./Player";
-import { BaseRole } from "./BaseRole";
+import { BaseRole, Role } from "./BaseRole";
+import { VoteManager } from "./VoteManager";
 
 export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
 
     players: Collection<number | string, Player<TPlayerExtra, TRoles, TNamespace>>;
-    onNight?: (game: this) => Promise<void> | void;
-    onDay?: (game: this) => Promise<void> | void;
+    private onNight?: (game: this) => Promise<void> | void;
+    private onDay?: (game: this) => Promise<void> | void;
+    private onEnd?: (game: this) => Promise<void> | void;
+
+    votes: VoteManager<TNamespace, TPlayerExtra, TRoles> = new VoteManager(this);
 
     turn: number = 0;
     day: boolean = true;
 
-    constructor(public id: number, public townies: Townies<TNamespace, TPlayerExtra, TRoles>, public readonly roles: RolePack<TNamespace, TPlayerExtra, TRoles>) {
+    private winners: Player<TPlayerExtra, TRoles, TNamespace>[] = null;
+    // roles: Role<TPlayerExtra, TNamespace, TRoles>[];
+    constructor(public id: number, public townies: Townies<TNamespace, TPlayerExtra, TRoles>, public readonly roles: Role<TPlayerExtra, TNamespace, TRoles>[]) {
         this.players = new Collection();
     }
 
-    async addPlayer(id: string | number, extra: TPlayerExtra, role: TRoles = this.roles[0]) {
+    async addPlayer(id: string | number, extra: TPlayerExtra, role: Role<TPlayerExtra, TNamespace, TRoles> = this.roles[0]) {
         if (this.players.has(id)) throw new Error("Player already exists");
-        const player = new Player(id, role, extra, this);
+        const player: Player<TPlayerExtra, TRoles, TNamespace> = new Player(id, role, extra, this);
         this.players.set(id, player);
     }
 
@@ -41,6 +47,10 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
                 i++;
             }
         }
+
+        for (const player of players) {
+            if (!player.role) player.role = this.roles.find(x => x.namespace === this.townies.namespace);
+        }
     }
 
     shufflePlayers(): this["players"] {
@@ -62,36 +72,81 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
         }
     }
 
-    private getVotes() {
-        const votes: { [key: string]: number } = {};
-        for (const player of this.players.values()) {
-            if (player.voted) {
-                if (!votes[player.voted]) votes[player.voted] = 0;
-                votes[player.voted]++;
-            }
+    get realTurn() {
+        return Math.ceil(this.turn / 2);
+    }
+
+    async nextTurn() {
+        this.turn++;
+        if (this.day) {
+            this.day = false;
+            if (this.onNight) await this.onNight(this);
+        } else {
+            this.day = true;
+            if (this.onDay) await this.onDay(this);
         }
-        return votes;
+
+        this.clearVotes();
+    }
+
+    on(type: "night" | "day" | "end", callback: (game: this) => Promise<void> | void) {
+        switch (type) {
+            case "night":
+                this.onNight = callback;
+                break;
+            case "day":
+                this.onDay = callback;
+                break;
+            case "end":
+                this.onEnd = callback;
+                break;
+        }
     }
 
     /**
-     * Returns an object with the following properties:
-     *  - data: An object with the player ID as the key and the number of votes as the value
-     *  - maxVotes: An array of player IDs with the most votes
-     *  - maxVotesCount: The number of votes the player(s) with the most votes have
+     * 
+     * @param winner The winner of the game. Can be a string or an array of strings. If it is a string, it will be the role's team. If it is an array of strings or numbers, it will be the player ids.
      */
-    getVoteDatas(): { data: { [k: string]: number }, maxVotes: string[], maxVotesCount: number } {
-        const votes = this.getVotes();
-        const maxVotesCount = Math.max(...Object.values(votes));
-        const maxVotes = Object.keys(votes).filter(key => votes[key] === maxVotesCount);
-        return {
-            data: votes,
-            maxVotes,
-            maxVotesCount
-        };
+    async setWinners(winner: string | (string | number)[]) {
+        if (typeof winner === "string") {
+            this.winners = this.players.filter(x => x.role.team === winner).map(x => x);
+        } else {
+            this.winners = this.players.filter(x => winner.includes(x.id)).map(x => x);
+        }
     }
 
-    get realTurn() {
-        return Math.ceil(this.turn / 2);
+    /**
+     * 
+     */
+    async tryEnd(): Promise<{
+        winners: Player<TPlayerExtra, TRoles, TNamespace>[];
+        winnerTeam?: string;
+    } | null> {
+        let winnerTeam = null;
+        let alivePlayers = this.players.filter(x => !x.dead);
+        if (alivePlayers.size === 0) {
+            this.winners = [];
+            winnerTeam = "none";
+        } else {
+            const aliveTeamSizes: {[k: string]: number} = {}
+            for (const player of alivePlayers.values()) {
+                if (!player.role.team) continue;
+                if (!aliveTeamSizes[player.role.team]) aliveTeamSizes[player.role.team] = 0;
+                aliveTeamSizes[player.role.team]++;
+            }
+        }
+        if (this.winners) {
+            this.end();
+            return {
+                winners: this.winners,
+                winnerTeam
+            };
+        }
+    }
+
+    private end() {
+        if (this.onEnd) this.onEnd(this);
+        this.dispose();
     }
 
 }

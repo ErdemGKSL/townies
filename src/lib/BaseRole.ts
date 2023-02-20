@@ -1,3 +1,4 @@
+import { Townies } from "..";
 import { Game } from "./Game";
 import { Player } from "./Player";
 
@@ -13,11 +14,11 @@ export interface BaseRole<TNamespace extends string, TPlayerExtra> {
 export class Role<TPlayerExtra, TNamespace extends string, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
     name: TRoles["name"];
     namespace: TRoles["namespace"];
-    team: TRoles["team"] | this["game"]["townies"]["namespace"];
-    constructor(public data: TRoles, public game: Game<TNamespace, TPlayerExtra, TRoles>) {
+    team?: TRoles["team"] | this["townies"]["namespace"];
+    constructor(public data: TRoles, public townies: Townies<TNamespace, TPlayerExtra, TRoles>) {
         this.name = data.name;
         this.namespace = data.namespace;
-        this.team = data.team ?? this.game.townies.namespace;
+        this.team = data.team ?? this.townies.namespace;
     }
 
 }
