@@ -149,16 +149,17 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
       }
     }
     if (this.winners) {
-      this.end();
+      await this.end();
       return {
         winners: this.winners,
         winnerTeam
       };
     }
+    return null;
   }
 
-  private end() {
-    if (this.onEnd) this.onEnd(this);
+  private async end() {
+    if (this.onEnd) await this.onEnd(this);
     this.dispose();
   }
 
