@@ -5,6 +5,20 @@ export class VoteManager<TNamespace extends string, TPlayerExtra, TRoles extends
 
     constructor(public game: Game<TNamespace, TPlayerExtra, TRoles>) { }
 
+    get cache(): { [key: string | number]: { votes: number, voted: string | number } } {
+        const alives = [...this.game.players.filter(x => x.alive).values()];
+        const votes: { [key: string | number]: { votes: number, voted: string | number } } = {};
+        for (const player of alives) {
+            if (!votes[player.id]) votes[player.id] = { votes: 0, voted: player.voted };
+            else votes[player.id].voted = player.voted;
+            if (player.voted) {
+                if (!votes[player.voted]) votes[player.voted] = { votes: 0, voted: null };
+                votes[player.voted].votes++;
+            }
+        }
+        return votes;
+    }
+
     private getVotes() {
         const votes: { [key: string]: number } = {};
         for (const player of this.game.players.values()) {
