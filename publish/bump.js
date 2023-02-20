@@ -10,7 +10,8 @@ const packageJsonContent = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 if (isDev) {
     const version = (packageJsonContent.version.split('-')[0]) + "-dev." + Math.floor(Date.now() / (1000 * 60));
-    packageJsonContent.version = version;
+    if (version !== packageJsonContent.version) packageJsonContent.version = version;
+    else packageJsonContent.version = (packageJsonContent.version.split('-')[0]) + "-dev." + Math.floor(Date.now() / (1000));
 } else {
     const version = packageJsonContent.version.split("-")[0];
     const newVersion = semver.inc(version, 'patch');;
