@@ -9,6 +9,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   players: Collection<number | string, Player<TPlayerExtra, TRoles, TNamespace>>;
   
   private ended: boolean = false;
+  private started: boolean = false;
   votes: VoteManager<TNamespace, TPlayerExtra, TRoles> = new VoteManager(this);
 
   turn: number = 0;
@@ -21,12 +22,14 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   }
 
   async addPlayer(id: string | number, extra: TPlayerExtra, role: Role<TPlayerExtra, TNamespace, TRoles> = this.roles[0]) {
+    if (this.started) throw new Error("Game already started");
     if (this.players.has(id)) throw new Error("Player already exists");
     const player: Player<TPlayerExtra, TRoles, TNamespace> = new Player(id, role, extra, this);
     this.players.set(id, player);
   }
 
   async removePlayer(id: string | number) {
+    if (this.started) throw new Error("Game already started");
     if (!this.players.has(id)) throw new Error("Player does not exist");
     this.players.delete(id);
   }
@@ -62,6 +65,12 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
 
   dispose() {
     this.townies.games.delete(this.id);
+  }
+
+  async start() {
+    if (this.started) throw new Error("Game already started");
+    this.started = true;
+    if (this.townies.onStart) await this.townies.onStart(this);
   }
 
   get realTurn() {

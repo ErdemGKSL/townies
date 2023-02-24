@@ -1,6 +1,6 @@
 {
   "name": "townies",
-  "version": "0.0.2-dev.27954327",
+  "version": "0.0.2-dev.27954333",
   "description": "Townies vs Bads Algorithm",
   "main": "dist/index.js",
   "type": "commonjs",
