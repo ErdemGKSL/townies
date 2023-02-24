@@ -68,6 +68,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   }
 
   async start() {
+    if (this.players.size < this.townies.options.minPlayers) throw new Error("Not enough players");
     if (this.started) throw new Error("Game already started");
     this.started = true;
     if (this.townies.onStart) await this.townies.onStart(this);
