@@ -29,6 +29,7 @@ export class Player<T, TRoles extends BaseRole<TNamespace, T>, TNamespace extend
         this.alive = false;
         this.voted = null;
         await this.role.data.onKill?.(this);
+        await this.game.townies.onKill?.(this);
     }
 
     async hang() {
@@ -36,6 +37,7 @@ export class Player<T, TRoles extends BaseRole<TNamespace, T>, TNamespace extend
         this.alive = false;
         this.voted = null;
         await this.role.data.onHang?.(this);
+        await this.game.townies.onHang?.(this);
     }
 
     async revive() {

@@ -1,5 +1,6 @@
 import { BaseRole, Role } from "./lib/BaseRole";
 import { Game } from "./lib/Game";
+import { Player } from "./lib/Player";
 
 export type RolePack<TNamespace extends string, TPlayerExtra, T extends BaseRole<TNamespace, TPlayerExtra>> = readonly T[];
 
@@ -19,6 +20,8 @@ export class Townies<TNamespace extends string, TPlayerExtra, TRoles extends Bas
     onDayStart?: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void;
     onEnd?: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void;
     onStart?: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void;
+    onHang?: (player: Player<TPlayerExtra, TRoles, TNamespace>) => Promise<void> | void;
+    onKill?: (player: Player<TPlayerExtra, TRoles, TNamespace>) => Promise<void> | void;
 
     constructor(
         public namespace: TNamespace,
@@ -46,22 +49,31 @@ export class Townies<TNamespace extends string, TPlayerExtra, TRoles extends Bas
         return game;
     }
 
-    on(type: "night" | "day" | "end" | "start", callback: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void) {
+    on(type: "hang" | "kill", callback: (player: Player<TPlayerExtra, TRoles, TNamespace>) => Promise<void> | void): void;
+    on(type: "night" | "day" | "end" | "start", callback: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void): void;
+
+    on(type: "night" | "day" | "end" | "start" | "hang" | "kill", callback: (data: any) => Promise<void> | void): void {
         switch (type) {
-          case "night":
-            this.onNightStart = callback;
-            break;
-          case "day":
-            this.onDayStart = callback;
-            break;
-          case "end":
-            this.onEnd = callback;
-            break;
-          case "start":
-            this.onStart = callback;
-            break;
+            case "night":
+                this.onNightStart = callback;
+                break;
+            case "day":
+                this.onDayStart = callback;
+                break;
+            case "end":
+                this.onEnd = callback;
+                break;
+            case "start":
+                this.onStart = callback;
+                break;
+            case "hang":
+                this.onHang = callback;
+                break;
+            case "kill":
+                this.onKill = callback;
+                break;
         }
-      }
+    }
 
 };
 
