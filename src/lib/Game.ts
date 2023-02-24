@@ -7,9 +7,7 @@ import { VoteManager } from "./VoteManager";
 export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
 
   players: Collection<number | string, Player<TPlayerExtra, TRoles, TNamespace>>;
-  private onNightStart?: (game: this) => Promise<void> | void;
-  private onDayStart?: (game: this) => Promise<void> | void;
-  private onEnd?: (game: this) => Promise<void> | void;
+  
   private ended: boolean = false;
   votes: VoteManager<TNamespace, TPlayerExtra, TRoles> = new VoteManager(this);
 
@@ -18,7 +16,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
 
   private winners: Player<TPlayerExtra, TRoles, TNamespace>[] = null;
   // roles: Role<TPlayerExtra, TNamespace, TRoles>[];
-  constructor(public id: number, public townies: Townies<TNamespace, TPlayerExtra, TRoles>, public readonly roles: Role<TPlayerExtra, TNamespace, TRoles>[]) {
+  constructor(public id: number, public townies: Townies<TNamespace, TPlayerExtra, TRoles>, public readonly roles: Role<any, any, any>[]) {
     this.players = new Collection();
   }
 
@@ -75,29 +73,17 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
     this.turn++;
     if (this.day) {
       this.day = false;
-      if (this.onNightStart) await this.onNightStart(this);
+      if (this.townies.onNightStart) await this.townies.onNightStart(this);
     } else {
       this.day = true;
-      if (this.onDayStart) await this.onDayStart(this);
+      if (this.townies.onDayStart) await this.townies.onDayStart(this);
     }
     this.votes.clear();
     await this.tryEnd();
 
   }
 
-  on(type: "night" | "day" | "end", callback: (game: this) => Promise<void> | void) {
-    switch (type) {
-      case "night":
-        this.onNightStart = callback;
-        break;
-      case "day":
-        this.onDayStart = callback;
-        break;
-      case "end":
-        this.onEnd = callback;
-        break;
-    }
-  }
+  
 
   /**
    * 
@@ -160,7 +146,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   }
 
   private async end() {
-    if (this.onEnd) await this.onEnd(this);
+    if (this.townies.onEnd) await this.townies.onEnd(this);
     this.dispose();
     this.ended = true;
   }

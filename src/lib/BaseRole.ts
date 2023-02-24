@@ -8,7 +8,6 @@ export interface BaseRole<TNamespace extends string, TPlayerExtra> {
     team?: string;
     onHang?: (player: Player<TPlayerExtra, this, TNamespace>) => void;
     onKill?: (player: Player<TPlayerExtra, this, TNamespace>) => void;
-
 }
 
 export class Role<TPlayerExtra, TNamespace extends string, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {

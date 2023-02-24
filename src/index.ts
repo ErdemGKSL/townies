@@ -1,7 +1,7 @@
 import { BaseRole, Role } from "./lib/BaseRole";
 import { Game } from "./lib/Game";
 
-export type RolePack<TNamespace extends string,TPlayerExtra, T extends BaseRole<TNamespace, TPlayerExtra>> = readonly T[];
+export type RolePack<TNamespace extends string, TPlayerExtra, T extends BaseRole<TNamespace, TPlayerExtra>> = readonly T[];
 
 interface TowniesOptions {
     maxPlayers: number;
@@ -15,10 +15,14 @@ export class Townies<TNamespace extends string, TPlayerExtra, TRoles extends Bas
     games: Map<number, Game<TNamespace, TPlayerExtra, TRoles>>;
     // roleNames: TRoles["name"][];
     readonly roles: Role<TPlayerExtra, TNamespace, TRoles>[];
+    onNightStart?: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void;
+    onDayStart?: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void;
+    onEnd?: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void;
+    onStart?: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void;
 
     constructor(
         public namespace: TNamespace,
-        roles: RolePack<TNamespace, TPlayerExtra,TRoles>,
+        roles: RolePack<TNamespace, TPlayerExtra, TRoles>,
         public readonly options: TowniesOptions = {
             maxPlayers: 16,
             minPlayers: 4,
@@ -41,6 +45,24 @@ export class Townies<TNamespace extends string, TPlayerExtra, TRoles extends Bas
         this.games.set(this.lastGameId, game);
         return game;
     }
+
+    on(type: "night" | "day" | "end" | "start", callback: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void) {
+        switch (type) {
+          case "night":
+            this.onNightStart = callback;
+            break;
+          case "day":
+            this.onDayStart = callback;
+            break;
+          case "end":
+            this.onEnd = callback;
+            break;
+          case "start":
+            this.onStart = callback;
+            break;
+        }
+      }
+
 };
 
 // export function createTownies<TPlayerExtra, TRoles extends BaseRole<TPlayerExtra>>(namespace: string, roles: RolePack<TPlayerExtra, TRoles>, options?: TowniesOptions) {
