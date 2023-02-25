@@ -7,6 +7,7 @@ import { VoteManager } from "./VoteManager";
 export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
 
   players: Collection<number | string, Player<TPlayerExtra, TRoles, TNamespace>>;
+  extra: {[k: string] : any} = {};
   
   private ended: boolean = false;
   private started: boolean = false;
@@ -156,6 +157,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   }
 
   private async end() {
+    if (this.ended) return;
     if (this.townies.onEnd) await this.townies.onEnd(this);
     this.dispose();
     this.ended = true;
