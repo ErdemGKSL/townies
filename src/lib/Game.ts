@@ -41,7 +41,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
     const players = this.players.map(x => x).sort(() => Math.random() - 0.5);
     const roles = this.roles.filter(role => roleSizes[role.namespace]);
     const roleSizesArray: number[] = Object.values(roleSizes);
-    if (players.length < roleSizesArray.reduce((a, b) => a + b)) throw new Error("Invalid role sizes");
+    if (players.length < roleSizesArray.reduce((a, b) => a + b, 0)) throw new Error("Invalid role sizes");
     let i = 0;
     for (const role of roles) {
       for (let j = 0; j < roleSizes[role.namespace]; j++) {
