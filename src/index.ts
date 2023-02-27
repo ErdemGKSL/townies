@@ -13,7 +13,7 @@ interface TowniesOptions {
 
 export class Townies<TNamespace extends string, TPlayerExtra, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
     lastGameId: number = 0;
-    games: Map<number, Game<TNamespace, TPlayerExtra, TRoles>>;
+    games: Map<number, Game<TNamespace, TPlayerExtra, TRoles>> = new Map();
     // roleNames: TRoles["name"][];
     readonly roles: Role<TPlayerExtra, TNamespace, TRoles>[];
     onNightStart?: (game: Game<TNamespace, TPlayerExtra, TRoles>) => Promise<void> | void;
