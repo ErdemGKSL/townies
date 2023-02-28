@@ -76,7 +76,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   }
 
   get realTurn() {
-    return Math.ceil(this.turn / 2);
+    return Math.floor(this.turn / 2) + 1;
   }
 
   async nextTurn() {
