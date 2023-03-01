@@ -7,8 +7,8 @@ import { VoteManager } from "./VoteManager";
 export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRole<TNamespace, TPlayerExtra>> {
 
   players: Collection<number | string, Player<TPlayerExtra, TRoles, TNamespace>>;
-  extra: {[k: string] : any} = {};
-  
+  extra: { [k: string]: any } = {};
+
   private _ended: boolean = false;
   private _started: boolean = false;
   votes: VoteManager<TNamespace, TPlayerExtra, TRoles> = new VoteManager(this);
@@ -25,6 +25,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   async addPlayer(id: string | number, extra: TPlayerExtra, role: Role<TPlayerExtra, TNamespace, TRoles> = this.roles[0]) {
     if (this._started) throw new Error("Game already started");
     if (this.players.has(id)) throw new Error("Player already exists");
+    if (!this.roles.includes(role)) throw new Error("Role not in game");
     const player: Player<TPlayerExtra, TRoles, TNamespace> = new Player(id, role, extra, this);
     this.players.set(id, player);
   }
@@ -76,22 +77,23 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
   }
 
   get realTurn() {
+    // Return the real turn from the turn number
+    // i.e., the number of turns that have passed
+    // (2 turns = 1 real turn)
     return Math.floor(this.turn / 2) + 1;
   }
 
   async nextTurn() {
     await this.tryEnd();
     this.turn++;
-    if (this.day) {
-      this.day = false;
-      if (this.townies.onNightStart) await this.townies.onNightStart(this);
-    } else {
-      this.day = true;
-      if (this.townies.onDayStart) await this.townies.onDayStart(this);
+    this.day = !this.day;
+    if (this.day && this.townies.onDayStart) {
+      await this.townies.onDayStart(this);
+    } else if (this.townies.onNightStart) {
+      await this.townies.onNightStart(this);
     }
     this.votes.clear();
     await this.tryEnd();
-
   }
 
   get ended() {
@@ -114,14 +116,12 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
     }
   }
 
-  /**
-   * 
-   */
+
   async tryEnd(): Promise<{
     winners: Player<TPlayerExtra, TRoles, TNamespace>[];
     winnerTeam?: string;
   } | null> {
-    let winnerTeam = null;
+    let winnerTeam: string;
     if (!this.winners) {
       let alivePlayers = this.players.filter(x => !x.dead);
       if (alivePlayers.size === 0) {
@@ -162,6 +162,7 @@ export class Game<TNamespace extends string, TPlayerExtra, TRoles extends BaseRo
     return null;
   }
 
+  /** Called when the game is over. Cleans up the game. */
   private async end() {
     if (this._ended) return;
     if (this.townies.onEnd) await this.townies.onEnd(this);
