@@ -14,7 +14,16 @@ if (isDev) {
     else packageJsonContent.version = (packageJsonContent.version.split('-')[0]) + "-dev." + Math.floor(Date.now() / (1000));
 } else {
     const version = packageJsonContent.version.split("-")[0];
-    const newVersion = semver.inc(version, 'patch');;
-    packageJsonContent.version = newVersion;
+    const newVersion = semver.inc(version, 'patch');
+    if (newVersion) {
+        packageJsonContent.version = newVersion;
+    } else {
+        core.setFailed("Error: Invalid version string: " + version);
+    }
 }
-fs.writeFileSync(packageJsonPath, JSON.stringify(packageJsonContent, null, 2));
+try {
+  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJsonContent, null, 2));
+} catch (err) {
+  console.log('ERROR: Could not write package.json');
+  console.log(err);
+}
